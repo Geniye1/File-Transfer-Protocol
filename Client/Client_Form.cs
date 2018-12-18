@@ -88,33 +88,36 @@ namespace Client
                                          "---------------------------------------------------------------\n";
 
                     stream.Write(flag, 0, flag.Length);
+                    stream.Flush();
 
-                    //MemoryStream ms = new MemoryStream();
+                    byte[] imageBytes = File.ReadAllBytes(fileName);
+                    Debug.WriteLine("Client is sending > {0} bytes", imageBytes.Length);
 
-                    //Image image = Image.FromFile(fileName);
-                    //image.Save(ms, image.RawFormat);
+                    byte[] len = BitConverter.GetBytes(imageBytes.Length);
+                    Debug.WriteLine(len.Length);
+                    stream.Write(len, 0, len.Length);
+                    stream.Flush();
 
-                    //byte[] data = ms.ToArray();
-
-                    var imageBytes = File.ReadAllBytes(filePath);
 
                     stream.Write(imageBytes, 0, imageBytes.Length);
+                    
                 }
 
                 // Prepare and receive a response to the server
-                byte[] response = new byte[100];
-                int length = stream.Read(response, 0, 100);
+                //byte[] response = new byte[100];
+                //int length = stream.Read(response, 0, 100);
 
-                // Push the response to the user
-                for (int i = 0; i < length; i++)
-                {
-                    OutputDialog.Text += Convert.ToChar(response[i]);
-                }
+                //// Push the response to the user
+                //for (int i = 0; i < length; i++)
+                //{
+                //    OutputDialog.Text += Convert.ToChar(response[i]);
+                //}
 
-                OutputDialog.Text += "\n---------------------------------------------------------------\n";
+                //OutputDialog.Text += "\n---------------------------------------------------------------\n";
 
-                // Clean up
-                client.Close();
+                //// Clean up
+                //client.Dispose();
+                //client.Close();
             }
             catch (Exception ex)
             {
@@ -128,6 +131,8 @@ namespace Client
             fileName = openFileDialog1.FileName;
             filePath = Path.GetDirectoryName(fileName);
             //s = File.Open(filePath, FileMode.Open);
+
+            Debug.WriteLine(fileName);
         }
     }
 }

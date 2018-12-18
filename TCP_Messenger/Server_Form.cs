@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Drawing.Imaging;
+using System.Threading;
 
 /*
  * Features still-to-be-made:
@@ -29,7 +30,7 @@ namespace TCP_Messenger
 
         private bool hasBegun = false;
         private TcpListener listener;
-        private Socket s;
+        //private Socket s;
 
         public Server_Form()
         {
@@ -75,10 +76,10 @@ namespace TCP_Messenger
                 }
 
                 // Push a new thread to run the given delegate asynchronously to prevent UI hang
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     // Accept the connection's socket
-                    s = listener.AcceptSocket();            
+                    Socket s = listener.AcceptSocket();            
                     
                     // Update user (Invoke is used as two threads cannot be updating the same variable at once
                     this.Invoke(new MethodInvoker(delegate ()
@@ -91,6 +92,9 @@ namespace TCP_Messenger
                     // Initialize a buffer for the data and receive the data
                     byte[] buffer = new byte[100];
                     int length = s.Receive(buffer);
+                    
+
+                    Debug.WriteLine("Server is receiving the flag of > {0} bytes", buffer.Length);
 
                     // Update the user
                     this.Invoke(new MethodInvoker(delegate ()
@@ -123,18 +127,58 @@ namespace TCP_Messenger
                     }
                     else if (flag == "Image")
                     {
-                        byte[] imageData = { };
-                        //int len = s.Receive(imageData);
+                        byte[] imgLenBytes = new byte[4];
+                        int res = s.Receive(imgLenBytes);
+
+                        int imgLength = BitConverter.ToInt32(imgLenBytes, 0);
+                        Debug.WriteLine(imgLength + " " + imgLenBytes.Length);
+
                         
-                        s.Receive(imageData);
+                        
 
-                        MemoryStream ms = new MemoryStream(imageData);
+                        //int offset = 0;
+                        //while (true)
+                        //{
+                        //    Debug.WriteLine("In loop");
+                        //    if (s.Available - offset != 0 && s.Available != 0)
+                        //    {
+                        //        Debug.WriteLine("Reading... " + s.Available + " " + offset);                                                          
+                        //    }
+                        //    else
+                        //    {
+                        //        Debug.WriteLine("Reading... " + s.Available + " " + offset);
+                        //        Debug.WriteLine("Broke from while loop");                         
+                        //        break;
+                        //    }
 
-                        Image image = Image.FromStream(ms);
+                        //    offset = s.Available;
+    
+                        //    Thread.Sleep(500);
 
-                        image.Save("pleasework", ImageFormat.Png);
-   
-                   }      
+                        //}
+                        //byte[] imageData = new byte[17922];
+                        //int len = s.Receive(imageData);
+
+                        FileInfo file = new FileInfo("pleasework.png");
+
+                        var fuckyou = new NetworkStream(s);
+                        var fileStream = new FileStream(@"D:\pleasework.jpg", FileMode.Create);
+
+                        await Task.Run(() =>
+                        {
+                            Debug.WriteLine("Awaiting to receive data");        
+                            fuckyou.CopyToAsync(fileStream);
+                            Thread.Sleep(2000);
+                            Debug.WriteLine(fileStream.Length);
+
+                            Bitmap bitmap = (Bitmap)Image.FromStream(fileStream);
+                            bitmap.Save("pleasework.png", System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                            //Image image = Image.FromStream(fileStream);
+                            //image.Save("pleasework.png", ImageFormat.Png);
+                        });  
+
+                    }
 
                     // Encoder to send response to client
                     ASCIIEncoding asc = new ASCIIEncoding();
@@ -163,9 +207,12 @@ namespace TCP_Messenger
 
         }
 
-        private void GetAndSaveImage(byte[] imageData)
+        async private void GetAndSaveImage(Socket s)
         {
             
+            
+
+
         }
     }
 }
