@@ -10,15 +10,14 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
+using System.IO;
 
 namespace Client
 {
     public partial class Client_Form : Form
     {
-        public enum DataTransferType {
-            Text = 0,
-            Image = 1
-        }
+        string fileName;
+        string filePath;
 
         public Client_Form()
         {
@@ -27,7 +26,7 @@ namespace Client
 
         private void Client_Form_Load(object sender, EventArgs e)
         {
-            int o = (int)DataTransferType.Text;
+            
             
         }
 
@@ -59,15 +58,48 @@ namespace Client
                 // Encoder to encode the message
                 ASCIIEncoding asc = new ASCIIEncoding();
 
-                // Populate a byte array with the encoded message
-                byte[] data = asc.GetBytes(MessageDialog.Text);
+                byte[] flag = new byte[20];
+                if (TextRadio.Checked)
+                {
+                    flag = asc.GetBytes("Text");
 
-                // Update the user
-                OutputDialog.Text += "Transmitting message...\n" +
-                                     "---------------------------------------------------------------\n";
+                    // Update the user
+                    OutputDialog.Text += "Transmitting Flag...\n" +
+                                         "---------------------------------------------------------------\n";
 
-                // Write the message to the stream and the TCP server
-                stream.Write(data, 0, data.Length);
+                    stream.Write(flag, 0, flag.Length);
+
+                    // Populate a byte array with the encoded message
+                    byte[] data = asc.GetBytes(MessageDialog.Text);
+
+                    // Update the user
+                    OutputDialog.Text += "Transmitting Data...\n" +
+                                         "---------------------------------------------------------------\n";
+
+                    // Write the message to the stream and the TCP server
+                    stream.Write(data, 0, data.Length);
+                }
+                else if (ImageRadio.Checked)
+                {
+                    flag = asc.GetBytes("Image");
+
+                    // Update the user
+                    OutputDialog.Text += "Transmitting Flag...\n" +
+                                         "---------------------------------------------------------------\n";
+
+                    stream.Write(flag, 0, flag.Length);
+
+                    //MemoryStream ms = new MemoryStream();
+
+                    //Image image = Image.FromFile(fileName);
+                    //image.Save(ms, image.RawFormat);
+
+                    //byte[] data = ms.ToArray();
+
+                    var imageBytes = File.ReadAllBytes(filePath);
+
+                    stream.Write(imageBytes, 0, imageBytes.Length);
+                }
 
                 // Prepare and receive a response to the server
                 byte[] response = new byte[100];
@@ -88,6 +120,14 @@ namespace Client
             {
                 Debug.WriteLine(ex.StackTrace);
             }
+        }
+
+        private void ChooseFile_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.ShowDialog();
+            fileName = openFileDialog1.FileName;
+            filePath = Path.GetDirectoryName(fileName);
+            //s = File.Open(filePath, FileMode.Open);
         }
     }
 }

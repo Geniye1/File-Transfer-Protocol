@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
+using System.Drawing.Imaging;
 
 /*
  * Features still-to-be-made:
@@ -18,7 +20,7 @@ using System.Net.Sockets;
  * Send and save files (code, text files)
  * Be able to choose if you want the application to
  * host a TCP server or be a TCP client
-*/ 
+*/
 
 namespace TCP_Messenger
 {
@@ -96,17 +98,43 @@ namespace TCP_Messenger
                         OutputDialog.Text += "Data received...\n" +
                                          "---------------------------------------------------------------\n";
                     }));
-                    
-                    // Push the message to the Output dialog box
-                    this.Invoke(new MethodInvoker(delegate ()
-                    {
-                        for (int i = 0; i < length; i++)
-                        {
-                            OutputDialog.Text += Convert.ToChar(buffer[i]);
-                        }
 
-                        OutputDialog.Text += "\n---------------------------------------------------------------";
-                    }));
+                    String flag = "";
+                    for (int i = 0; i < length; i++)
+                    {
+                        flag += Convert.ToChar(buffer[i]);
+                    }
+
+                    if (flag == "Text")
+                    {
+                        byte[] text = new byte[100];
+                        int textLength = s.Receive(text);
+
+                        // Push the message to the Output dialog box
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            for (int i = 0; i < textLength; i++)
+                            {
+                                OutputDialog.Text += Convert.ToChar(text[i]);
+                            }
+
+                            OutputDialog.Text += "\n---------------------------------------------------------------";
+                        }));
+                    }
+                    else if (flag == "Image")
+                    {
+                        byte[] imageData = { };
+                        //int len = s.Receive(imageData);
+                        
+                        s.Receive(imageData);
+
+                        MemoryStream ms = new MemoryStream(imageData);
+
+                        Image image = Image.FromStream(ms);
+
+                        image.Save("pleasework", ImageFormat.Png);
+   
+                   }      
 
                     // Encoder to send response to client
                     ASCIIEncoding asc = new ASCIIEncoding();
@@ -133,6 +161,11 @@ namespace TCP_Messenger
                 Debug.WriteLine(ex.StackTrace);
             }
 
+        }
+
+        private void GetAndSaveImage(byte[] imageData)
+        {
+            
         }
     }
 }
