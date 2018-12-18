@@ -89,28 +89,28 @@ namespace TCP_Messenger
                                          "---------------------------------------------------------------\n";
                     }));
 
-                    // Initialize a buffer for the data and receive the data
+                    // Initialize a buffer for the data and receive the flag
                     byte[] buffer = new byte[100];
-                    int length = s.Receive(buffer);
-                    
-
-                    Debug.WriteLine("Server is receiving the flag of > {0} bytes", buffer.Length);
+                    int length = s.Receive(buffer);                 
 
                     // Update the user
                     this.Invoke(new MethodInvoker(delegate ()
                     {
-                        OutputDialog.Text += "Data received...\n" +
+                        OutputDialog.Text += "Flag received...\n" +
                                          "---------------------------------------------------------------\n";
                     }));
 
+                    // Convert the flag data
                     String flag = "";
                     for (int i = 0; i < length; i++)
                     {
                         flag += Convert.ToChar(buffer[i]);
                     }
 
+                    // Decide if the flag is for text or and image
                     if (flag == "Text")
                     {
+                        // Initiailize the text byte array and populate it with data
                         byte[] text = new byte[100];
                         int textLength = s.Receive(text);
 
@@ -127,55 +127,40 @@ namespace TCP_Messenger
                     }
                     else if (flag == "Image")
                     {
+                        // Receive the size of the coming image
                         byte[] imgLenBytes = new byte[4];
                         int res = s.Receive(imgLenBytes);
 
+                        // Convert it to a usable int
                         int imgLength = BitConverter.ToInt32(imgLenBytes, 0);
                         Debug.WriteLine(imgLength + " " + imgLenBytes.Length);
 
-                        
-                        
-
-                        //int offset = 0;
-                        //while (true)
-                        //{
-                        //    Debug.WriteLine("In loop");
-                        //    if (s.Available - offset != 0 && s.Available != 0)
-                        //    {
-                        //        Debug.WriteLine("Reading... " + s.Available + " " + offset);                                                          
-                        //    }
-                        //    else
-                        //    {
-                        //        Debug.WriteLine("Reading... " + s.Available + " " + offset);
-                        //        Debug.WriteLine("Broke from while loop");                         
-                        //        break;
-                        //    }
-
-                        //    offset = s.Available;
-    
-                        //    Thread.Sleep(500);
-
-                        //}
-                        //byte[] imageData = new byte[17922];
-                        //int len = s.Receive(imageData);
-
-                        FileInfo file = new FileInfo("pleasework.png");
-
-                        var fuckyou = new NetworkStream(s);
+                        // Initialize the stream and File Stream to create the new file
+                        var ns = new NetworkStream(s);
                         var fileStream = new FileStream(@"D:\pleasework.jpg", FileMode.Create);
 
+                        // Asynchronously receive the image
                         await Task.Run(() =>
                         {
-                            Debug.WriteLine("Awaiting to receive data");        
-                            fuckyou.CopyToAsync(fileStream);
+                            Debug.WriteLine("Awaiting to receive data");
+
+                            // Copy the NetworkStream read to the FileStream
+                            ns.CopyToAsync(fileStream);     
+                            
+                            // Give the copy a chance to fully receive the data
                             Thread.Sleep(2000);
                             Debug.WriteLine(fileStream.Length);
 
-                            Bitmap bitmap = (Bitmap)Image.FromStream(fileStream);
-                            bitmap.Save("pleasework.png", System.Drawing.Imaging.ImageFormat.Jpeg);
+                            /*
+                             * These two lines are odd, in testing the image came out only half
+                             * processed but now all of a sudden its the full image coming through?
+                             * Active these if that happens again
+                            */ 
+                            // Create a new bitmap from the filestream
+                            //Bitmap bitmap = (Bitmap)Image.FromStream(fileStream);
 
-                            //Image image = Image.FromStream(fileStream);
-                            //image.Save("pleasework.png", ImageFormat.Png);
+                            // Save the bitmap to the file system
+                            //bitmap.Save("pleasework.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
                         });  
 
                     }
@@ -204,15 +189,6 @@ namespace TCP_Messenger
             {
                 Debug.WriteLine(ex.StackTrace);
             }
-
-        }
-
-        async private void GetAndSaveImage(Socket s)
-        {
-            
-            
-
-
         }
     }
 }
