@@ -171,16 +171,26 @@ namespace TCP_Messenger
                     }
                     else if (flag == "Single")
                     {
+                        // Receive the file extension 
                         byte[] fileExtRaw = new byte[5];
                         int res = s.Receive(fileExtRaw);
 
+                        // Convert the file extension bytes to a usable string
                         string fileExt = "";
                         for (int i = 0; i < res; i++)
                         {
                             fileExt += Convert.ToChar(fileExtRaw[i]);
                         }
 
-                        
+                        byte[] test = new byte[10000];
+                        int resp = s.Receive(test);
+
+                        ASCIIEncoding enc = new ASCIIEncoding();
+                        string data = enc.GetString(test);
+
+                        File.WriteAllText(@"D:\singleFileTest" + fileExt, data);
+                        Debug.WriteLine("The file has been saved");
+
                     }
 
                     // Encoder to send response to client

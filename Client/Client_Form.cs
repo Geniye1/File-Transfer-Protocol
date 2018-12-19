@@ -112,10 +112,10 @@ namespace Client
                     stream.Flush();
 
                     byte[] imageBytes = File.ReadAllBytes(fileName);
-                    Debug.WriteLine("Client is sending > {0} bytes", imageBytes.Length);
+                    //Debug.WriteLine("Client is sending > {0} bytes", imageBytes.Length);
 
                     byte[] len = BitConverter.GetBytes(imageBytes.Length);
-                    Debug.WriteLine(len.Length);
+                    //Debug.WriteLine(len.Length);
                     stream.Write(len, 0, len.Length);
                     stream.Flush();
 
@@ -141,10 +141,22 @@ namespace Client
                     OutputDialog.Text += "Transmitting extension of file...\n" +
                                          "---------------------------------------------------------------\n";
 
+                    // Write the extension to the stream
                     stream.Write(extBytes, 0, extBytes.Length);
                     stream.Flush();
 
+                    // Read the bytes of the file itself
+                    byte[] fileDataRaw = File.ReadAllBytes(fileName);
 
+                    // Update the user
+                    OutputDialog.Text += "Transmitting raw file data...\n" +
+                                         "---------------------------------------------------------------\n";
+
+                    // Write the extension to the stream
+                    stream.Write(fileDataRaw, 0, fileDataRaw.Length);
+                    stream.Flush();
+
+                    Debug.WriteLine("Client is sending > " + fileDataRaw.Length);
                 }
 
                 // Prepare and receive a response to the server
