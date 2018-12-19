@@ -127,38 +127,43 @@ namespace Client
                 }
                 else if (singleFileRadio.Checked)
                 {
+                    // Get the bytes for the flag to alert the server
                     flag = asc.GetBytes("Single");
 
                     // Update the user
                     OutputDialog.Text += "Transmitting Flag...\n" +
                                          "---------------------------------------------------------------\n";
 
+                    // Write the flag and flush the stream to make room for later data
                     stream.Write(flag, 0, flag.Length);
                     stream.Flush();
 
-                    // Write to the stream the extension of the coming file
+                    // Get bytes of the safe file name and the size 
                     byte[] extBytes = asc.GetBytes(safeFileName + " " + len);                  
 
                     // Update the user
                     OutputDialog.Text += "Transmitting extension of file...\n" +
                                          "---------------------------------------------------------------\n";
 
-                    // Write the extension to the stream
+                    // Write the extension and size to the stream
                     stream.Write(extBytes, 0, extBytes.Length);
                     stream.Flush();
 
+                    // Stop the client here and wait for the server to respond with the OK to send the 
+                    // rest of the data
                     byte[] wait = new byte[2];
                     int length = stream.Read(wait, 0, wait.Length);
 
+                    // Convert the bytes 
                     string response = "";
                     for (int i = 0; i < length; i++)
                     {
                         response += Convert.ToChar(wait[i]);
                     }
 
+                    // Check if the server is ready
                     if (response == "OK")
                     {
-                        Debug.WriteLine("CLIENT RECEIVED SERVER RESPONSE AND IS SENDING DATA");
                         // Read the bytes of the file itself
                         byte[] fileDataRaw = File.ReadAllBytes(fileName);
 
@@ -170,7 +175,9 @@ namespace Client
                         stream.Write(fileDataRaw, 0, fileDataRaw.Length);
                         stream.Flush();
 
-                        Debug.WriteLine("Client is sending > " + fileDataRaw.Length);
+                        // Update the user
+                        OutputDialog.Text += "File successfully sent to the server!\n" +
+                                             "---------------------------------------------------------------\n";
                     }               
                 }
 
@@ -196,6 +203,7 @@ namespace Client
             }
         }
 
+        // Image file chooser
         private void ChooseFile_Click(object sender, EventArgs e)
         {
             openFileDialog1.ShowDialog();
@@ -204,6 +212,7 @@ namespace Client
             Debug.WriteLine(fileName);
         }
 
+        // Single file choose
         private void singleFileChooser_Click(object sender, EventArgs e)
         {
             openFileDialog1.ShowDialog();
@@ -215,6 +224,7 @@ namespace Client
             Debug.WriteLine(fileName + " and the extension has been read as " + fileExt);
         }
 
+        // Folder chooser
         private void folderChooserButton_Click(object sender, EventArgs e)
         {
             folderBrowserDialog1.ShowDialog();

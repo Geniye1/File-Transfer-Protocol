@@ -111,7 +111,7 @@ namespace TCP_Messenger
                     {
                         flag += Convert.ToChar(buffer[i]);
                     }
-                    Debug.WriteLine("Server got: " + flag);
+         
                     // Decide if the flag is for text or and image
                     if (flag == "Text")
                     {
@@ -171,6 +171,13 @@ namespace TCP_Messenger
                     }
                     else if (flag == "Single")
                     {
+                        // Update the user
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            OutputDialog.Text += "Preparing for download...\n" +
+                                             "---------------------------------------------------------------\n";
+                        }));
+
                         // Receive the file extension 
                         byte[] fileExtRaw = new byte[50];
                         int res = s.Receive(fileExtRaw);
@@ -188,21 +195,33 @@ namespace TCP_Messenger
                             fileInfoGlued += Convert.ToChar(fileExtRaw[i]);
                         }
 
-                        Debug.WriteLine(fileInfoGlued);
-
+                        // Split the received information to abstract the name of the file and the size
                         string[] fileInfo = fileInfoGlued.Split(null);
 
-                        Debug.WriteLine("The extension is {0} and the file size is {1}", fileInfo[0], fileInfo[1]);
+                        // Update the user
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            OutputDialog.Text += "Downloading the file...\n" +
+                                             "---------------------------------------------------------------\n";
+                        }));
 
+                        // Initialize the buffer array with the size from info and receive the file data
                         byte[] test = new byte[Convert.ToInt32(fileInfo[1])];
                         int resp = s.Receive(test);
 
+                        // Decode the received data 
                         ASCIIEncoding enc = new ASCIIEncoding();
                         string data = enc.GetString(test);
 
+                        // Write the string to a file with the same name
                         File.WriteAllText(@"D:\" + fileInfo[0], data);
-                        Debug.WriteLine("The file has been saved");
 
+                        // Update the user
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            OutputDialog.Text += "File succesfully received and saved to the computer!\n" +
+                                             "---------------------------------------------------------------\n";
+                        }));
                     }
 
                     // Encoder to send response to client
@@ -214,7 +233,7 @@ namespace TCP_Messenger
                     // Update the user
                     this.Invoke(new MethodInvoker(delegate ()
                     {
-                        OutputDialog.Text += "\nThe server successfully received the acknowledgement\n" +
+                        OutputDialog.Text += "The server successfully received the acknowledgement\n" +
                                         "---------------------------------------------------------------\n";
                     }));
 
