@@ -122,6 +122,10 @@ namespace Client
                     stream.Write(imageBytes, 0, imageBytes.Length);
                     
                 }
+                else if (singleFileRadio.Checked)
+                {
+                    
+                }
 
                 // Prepare and receive a response to the server
                 //byte[] response = new byte[100];
@@ -149,10 +153,36 @@ namespace Client
         {
             openFileDialog1.ShowDialog();
             fileName = openFileDialog1.FileName;
-            filePath = Path.GetDirectoryName(fileName);
-            //s = File.Open(filePath, FileMode.Open);
 
             Debug.WriteLine(fileName);
         }
+
+        private void singleFileChooser_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.ShowDialog();
+            fileName = openFileDialog1.FileName;
+            string fileExt = Path.GetExtension(fileName);
+
+            Debug.WriteLine(fileName + " and the extension has been read as " + fileExt);
+        }
+
+        private void folderChooserButton_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.ShowDialog();
+            fileName = folderBrowserDialog1.SelectedPath;
+            Debug.WriteLine(fileName);
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void singleFileRadio_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        
     }
 }
