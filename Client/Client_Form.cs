@@ -12,6 +12,21 @@ using System.Net.Sockets;
 using System.Diagnostics;
 using System.IO;
 
+/*
+ * TODO
+ * ################################################################
+ * - Send a single text file with a flag to let the server know
+ * what the format of the file is
+ *      (CLIENT)
+ *      - Send flag to server first saying what the extension is
+ *      - Send data to server
+ *      (SERVER)
+ *      - Construct the file name/path from the flag and populate 
+ *      it with the data received
+ * - Use ZipArchive to zip a selected file and send it across the 
+ * connection
+*/ 
+
 namespace Client
 {
     public partial class Client_Form : Form
@@ -29,6 +44,11 @@ namespace Client
             
             
         }
+
+        /*
+         * Abstract bottom two methods to new class to allow for one single
+         * application to either be a server or a client
+        */  
 
         private void ConnectButton_Click(object sender, EventArgs e)
         {

@@ -53,6 +53,11 @@ namespace TCP_Messenger
             hasBegun = true;
         }
 
+        /*
+         * Abstract RunServer() to a new class to allow for one single
+         * application to either be a server or a client
+        */
+
         async private void RunServer()
         {
             try
@@ -152,10 +157,10 @@ namespace TCP_Messenger
                             Debug.WriteLine(fileStream.Length);
 
                             /*
-                             * These two lines are odd, in testing the image came out only half
-                             * processed but now all of a sudden its the full image coming through?
-                             * Active these if that happens again
+                             * These two lines will manually save a bitmap from the filestream, 
+                             * if needed enable these
                             */ 
+
                             // Create a new bitmap from the filestream
                             //Bitmap bitmap = (Bitmap)Image.FromStream(fileStream);
 
