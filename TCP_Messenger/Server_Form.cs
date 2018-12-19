@@ -172,7 +172,7 @@ namespace TCP_Messenger
                     else if (flag == "Single")
                     {
                         // Receive the file extension 
-                        byte[] fileExtRaw = new byte[20];
+                        byte[] fileExtRaw = new byte[50];
                         int res = s.Receive(fileExtRaw);
 
                         // Encoder to send response to client
@@ -200,7 +200,7 @@ namespace TCP_Messenger
                         ASCIIEncoding enc = new ASCIIEncoding();
                         string data = enc.GetString(test);
 
-                        File.WriteAllText(@"D:\singleFileTest" + fileInfo[0], data);
+                        File.WriteAllText(@"D:\" + fileInfo[0], data);
                         Debug.WriteLine("The file has been saved");
 
                     }

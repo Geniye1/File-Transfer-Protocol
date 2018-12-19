@@ -32,6 +32,7 @@ namespace Client
     public partial class Client_Form : Form
     {
         string fileName;
+        string safeFileName;
         string filePath;
         string fileExt;
         int len;
@@ -136,7 +137,7 @@ namespace Client
                     stream.Flush();
 
                     // Write to the stream the extension of the coming file
-                    byte[] extBytes = asc.GetBytes(fileExt + " " + len + " ");                  
+                    byte[] extBytes = asc.GetBytes(safeFileName + " " + len);                  
 
                     // Update the user
                     OutputDialog.Text += "Transmitting extension of file...\n" +
@@ -209,6 +210,7 @@ namespace Client
             fileName = openFileDialog1.FileName;
             fileExt = Path.GetExtension(fileName);
             len = (int) new FileInfo(fileName).Length;
+            safeFileName = openFileDialog1.SafeFileName;
 
             Debug.WriteLine(fileName + " and the extension has been read as " + fileExt);
         }
