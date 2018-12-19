@@ -172,23 +172,35 @@ namespace TCP_Messenger
                     else if (flag == "Single")
                     {
                         // Receive the file extension 
-                        byte[] fileExtRaw = new byte[5];
+                        byte[] fileExtRaw = new byte[20];
                         int res = s.Receive(fileExtRaw);
 
+                        // Encoder to send response to client
+                        ASCIIEncoding asci = new ASCIIEncoding();
+
+                        // Alert the client the server is ready to receive the data
+                        s.Send(asci.GetBytes("OK"));
+
                         // Convert the file extension bytes to a usable string
-                        string fileExt = "";
+                        string fileInfoGlued = "";
                         for (int i = 0; i < res; i++)
                         {
-                            fileExt += Convert.ToChar(fileExtRaw[i]);
+                            fileInfoGlued += Convert.ToChar(fileExtRaw[i]);
                         }
 
-                        byte[] test = new byte[10000];
+                        Debug.WriteLine(fileInfoGlued);
+
+                        string[] fileInfo = fileInfoGlued.Split(null);
+
+                        Debug.WriteLine("The extension is {0} and the file size is {1}", fileInfo[0], fileInfo[1]);
+
+                        byte[] test = new byte[Convert.ToInt32(fileInfo[1])];
                         int resp = s.Receive(test);
 
                         ASCIIEncoding enc = new ASCIIEncoding();
                         string data = enc.GetString(test);
 
-                        File.WriteAllText(@"D:\singleFileTest" + fileExt, data);
+                        File.WriteAllText(@"D:\singleFileTest" + fileInfo[0], data);
                         Debug.WriteLine("The file has been saved");
 
                     }

@@ -34,6 +34,7 @@ namespace Client
         string fileName;
         string filePath;
         string fileExt;
+        int len;
 
         public Client_Form()
         {
@@ -135,7 +136,7 @@ namespace Client
                     stream.Flush();
 
                     // Write to the stream the extension of the coming file
-                    byte[] extBytes = asc.GetBytes(fileExt);
+                    byte[] extBytes = asc.GetBytes(fileExt + " " + len + " ");                  
 
                     // Update the user
                     OutputDialog.Text += "Transmitting extension of file...\n" +
@@ -145,18 +146,31 @@ namespace Client
                     stream.Write(extBytes, 0, extBytes.Length);
                     stream.Flush();
 
-                    // Read the bytes of the file itself
-                    byte[] fileDataRaw = File.ReadAllBytes(fileName);
+                    byte[] wait = new byte[2];
+                    int length = stream.Read(wait, 0, wait.Length);
 
-                    // Update the user
-                    OutputDialog.Text += "Transmitting raw file data...\n" +
-                                         "---------------------------------------------------------------\n";
+                    string response = "";
+                    for (int i = 0; i < length; i++)
+                    {
+                        response += Convert.ToChar(wait[i]);
+                    }
 
-                    // Write the extension to the stream
-                    stream.Write(fileDataRaw, 0, fileDataRaw.Length);
-                    stream.Flush();
+                    if (response == "OK")
+                    {
+                        Debug.WriteLine("CLIENT RECEIVED SERVER RESPONSE AND IS SENDING DATA");
+                        // Read the bytes of the file itself
+                        byte[] fileDataRaw = File.ReadAllBytes(fileName);
 
-                    Debug.WriteLine("Client is sending > " + fileDataRaw.Length);
+                        // Update the user
+                        OutputDialog.Text += "Transmitting raw file data...\n" +
+                                             "---------------------------------------------------------------\n";
+
+                        // Write the extension to the stream
+                        stream.Write(fileDataRaw, 0, fileDataRaw.Length);
+                        stream.Flush();
+
+                        Debug.WriteLine("Client is sending > " + fileDataRaw.Length);
+                    }               
                 }
 
                 // Prepare and receive a response to the server
@@ -194,6 +208,7 @@ namespace Client
             openFileDialog1.ShowDialog();
             fileName = openFileDialog1.FileName;
             fileExt = Path.GetExtension(fileName);
+            len = (int) new FileInfo(fileName).Length;
 
             Debug.WriteLine(fileName + " and the extension has been read as " + fileExt);
         }
