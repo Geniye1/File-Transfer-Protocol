@@ -111,7 +111,7 @@ namespace TCP_Messenger
                     {
                         flag += Convert.ToChar(buffer[i]);
                     }
-
+                    Debug.WriteLine("Server got: " + flag);
                     // Decide if the flag is for text or and image
                     if (flag == "Text")
                     {
@@ -168,6 +168,19 @@ namespace TCP_Messenger
                             //bitmap.Save("pleasework.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
                         });  
 
+                    }
+                    else if (flag == "Single")
+                    {
+                        byte[] fileExtRaw = new byte[5];
+                        int res = s.Receive(fileExtRaw);
+
+                        string fileExt = "";
+                        for (int i = 0; i < res; i++)
+                        {
+                            fileExt += Convert.ToChar(fileExtRaw[i]);
+                        }
+
+                        
                     }
 
                     // Encoder to send response to client

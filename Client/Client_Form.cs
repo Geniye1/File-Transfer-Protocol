@@ -33,6 +33,7 @@ namespace Client
     {
         string fileName;
         string filePath;
+        string fileExt;
 
         public Client_Form()
         {
@@ -124,7 +125,26 @@ namespace Client
                 }
                 else if (singleFileRadio.Checked)
                 {
-                    
+                    flag = asc.GetBytes("Single");
+
+                    // Update the user
+                    OutputDialog.Text += "Transmitting Flag...\n" +
+                                         "---------------------------------------------------------------\n";
+
+                    stream.Write(flag, 0, flag.Length);
+                    stream.Flush();
+
+                    // Write to the stream the extension of the coming file
+                    byte[] extBytes = asc.GetBytes(fileExt);
+
+                    // Update the user
+                    OutputDialog.Text += "Transmitting extension of file...\n" +
+                                         "---------------------------------------------------------------\n";
+
+                    stream.Write(extBytes, 0, extBytes.Length);
+                    stream.Flush();
+
+
                 }
 
                 // Prepare and receive a response to the server
@@ -161,7 +181,7 @@ namespace Client
         {
             openFileDialog1.ShowDialog();
             fileName = openFileDialog1.FileName;
-            string fileExt = Path.GetExtension(fileName);
+            fileExt = Path.GetExtension(fileName);
 
             Debug.WriteLine(fileName + " and the extension has been read as " + fileExt);
         }
