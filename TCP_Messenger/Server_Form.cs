@@ -48,9 +48,7 @@ namespace TCP_Messenger
             BeginButton.Enabled = false;
 
             // Begin the recursive server algorithm
-            RunServer();
-
-            hasBegun = true;
+            RunServer();   
         }
 
         /*
@@ -76,6 +74,8 @@ namespace TCP_Messenger
                                           "Local endpoint is " + listener.LocalEndpoint + "\n" +
                                           "Awaiting a connection...\n" +
                                           "--------------------------------------------------------------\n";
+                    hasBegun = true;
+
                     // Begin listening for connections
                     listener.Start();
                 }
@@ -223,6 +223,10 @@ namespace TCP_Messenger
                                              "---------------------------------------------------------------\n";
                         }));
                     }
+                    else if (flag == "Zip")
+                    {
+                        Debug.WriteLine("Flag received");
+                    }
 
                     // Encoder to send response to client
                     ASCIIEncoding asc = new ASCIIEncoding();
@@ -246,7 +250,9 @@ namespace TCP_Messenger
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.StackTrace);
+                // If something went wrong, write to a log and save it
+                string logData = ex.StackTrace;
+                File.WriteAllText(@"D:\log.txt", logData);
             }
         }
     }

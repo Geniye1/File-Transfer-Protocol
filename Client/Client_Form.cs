@@ -11,21 +11,29 @@ using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 
 /*
  * TODO
  * ################################################################
- * - Send a single text file with a flag to let the server know
- * what the format of the file is
- *      (CLIENT)
- *      - Send flag to server first saying what the extension is
- *      - Send data to server
- *      (SERVER)
- *      - Construct the file name/path from the flag and populate 
- *      it with the data received
  * - Use ZipArchive to zip a selected file and send it across the 
  * connection
-*/ 
+ *      (CLIENT)
+ *      - Compress the selected file into a zip file
+ *      - Get the size of the file with >>> int len = (int) new FileInfo(fileName).Length;
+ *      - Send the name and size in a packet before the data
+ *      - Wait for the server to respond with the OK to send the file
+ *      - Send the file
+ *      (SERVER)
+ *      - Receive the flag of "Zip"
+ *      - Receive the name and size of the file
+ *      - Split it into two usable strings
+ *      - Send the OK to the client that the server is ready for the file's data
+ *      - Receive the file's data
+ *      - Parse it into a new TXT file
+ *      - WriteAllBytes into a .7z file
+ *      - Extract the Zip into the wanted directory
+*/
 
 namespace Client
 {
@@ -179,6 +187,24 @@ namespace Client
                         OutputDialog.Text += "File successfully sent to the server!\n" +
                                              "---------------------------------------------------------------\n";
                     }               
+                }
+                else if (folderRadio.Checked)
+                {
+                    // Get the bytes for the flag to alert the server
+                    flag = asc.GetBytes("Zip");
+
+                    // Update the user
+                    OutputDialog.Text += "Transmitting Flag...\n" +
+                                         "---------------------------------------------------------------\n";
+
+                    // Write the flag and flush the stream to make room for later data
+                    stream.Write(flag, 0, flag.Length);
+                    stream.Flush();
+
+                    ZipFile.CreateFromDirectory(fileName, @"C:\TCP_Messages\result.7z");
+                    byte[] uuh = File.ReadAllBytes(@"C:\TCP_Messages\result.7z");
+
+                    Debug.WriteLine(uuh.Length);
                 }
 
                 // Prepare and receive a response to the server
