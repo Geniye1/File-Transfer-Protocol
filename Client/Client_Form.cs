@@ -201,10 +201,38 @@ namespace Client
                     stream.Write(flag, 0, flag.Length);
                     stream.Flush();
 
+                    // TODO: Ensure that there isn't already a file with the same name otherwise
+                    // ZipFile will have a stroke
                     ZipFile.CreateFromDirectory(fileName, @"C:\TCP_Messages\result.7z");
-                    byte[] uuh = File.ReadAllBytes(@"C:\TCP_Messages\result.7z");
+                    byte[] zipRaw = File.ReadAllBytes(@"C:\TCP_Messages\result.7z");
 
-                    Debug.WriteLine(uuh.Length);
+                    len = zipRaw.Length;
+                    
+                    // Get bytes of the safe file name and the size 
+                    byte[] extBytes = asc.GetBytes(safeFileName + " " + len);
+
+                    // Update the user
+                    OutputDialog.Text += "Transmitting file information...\n" +
+                                         "---------------------------------------------------------------\n";
+
+                    // Write the extension and size to the stream
+                    stream.Write(extBytes, 0, extBytes.Length);
+                    stream.Flush();
+
+                    // Stop the client here and wait for the server to respond with the OK to send the 
+                    // rest of the data
+                    byte[] wait = new byte[2];
+                    int length = stream.Read(wait, 0, wait.Length);
+
+                    // Convert the bytes 
+                    string response = "";
+                    for (int i = 0; i < length; i++)
+                    {
+                        response += Convert.ToChar(wait[i]);
+                    }
+
+
+                    
                 }
 
                 // Prepare and receive a response to the server
@@ -255,6 +283,7 @@ namespace Client
         {
             folderBrowserDialog1.ShowDialog();
             fileName = folderBrowserDialog1.SelectedPath;
+            safeFileName = Path.GetFileName(fileName);
             Debug.WriteLine(fileName);
         }
 

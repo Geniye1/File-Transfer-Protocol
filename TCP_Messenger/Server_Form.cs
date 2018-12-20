@@ -225,7 +225,43 @@ namespace TCP_Messenger
                     }
                     else if (flag == "Zip")
                     {
-                        Debug.WriteLine("Flag received");
+                        // Update the user
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            OutputDialog.Text += "Preparing for download...\n" +
+                                             "---------------------------------------------------------------\n";
+                        }));
+
+                        // Receive the file extension 
+                        byte[] fileExtRaw = new byte[50];
+                        int res = s.Receive(fileExtRaw);
+
+                        // Encoder to send response to client
+                        ASCIIEncoding asci = new ASCIIEncoding();
+
+                        // Alert the client the server is ready to receive the data
+                        s.Send(asci.GetBytes("OK"));
+
+                        // Convert the file extension bytes to a usable string
+                        string fileInfoGlued = "";
+                        for (int i = 0; i < res; i++)
+                        {
+                            fileInfoGlued += Convert.ToChar(fileExtRaw[i]);
+                        }
+
+                        // Split the received information to abstract the name of the file and the size
+                        string[] fileInfo = fileInfoGlued.Split(null);
+
+                        Debug.WriteLine("File name is > {0} and the length is > {1}", fileInfo[0], fileInfo[1]);
+
+                        //// Update the user
+                        //this.Invoke(new MethodInvoker(delegate ()
+                        //{
+                        //    OutputDialog.Text += "Downloading the file...\n" +
+                        //                     "---------------------------------------------------------------\n";
+                        //}));
+
+
                     }
 
                     // Encoder to send response to client
