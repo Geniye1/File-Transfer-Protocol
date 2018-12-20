@@ -13,6 +13,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Threading;
+using System.IO.Compression;
 
 /*
  * Features still-to-be-made:
@@ -252,16 +253,27 @@ namespace TCP_Messenger
                         // Split the received information to abstract the name of the file and the size
                         string[] fileInfo = fileInfoGlued.Split(null);
 
-                        Debug.WriteLine("File name is > {0} and the length is > {1}", fileInfo[0], fileInfo[1]);
+                        // Update the user
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            OutputDialog.Text += "Downloading the file...\n" +
+                                             "---------------------------------------------------------------\n";
+                        }));
 
-                        //// Update the user
-                        //this.Invoke(new MethodInvoker(delegate ()
-                        //{
-                        //    OutputDialog.Text += "Downloading the file...\n" +
-                        //                     "---------------------------------------------------------------\n";
-                        //}));
+                        // Initialize the buffer array with the size from info and receive the file data
+                        byte[] zipRaw = new byte[Convert.ToInt32(fileInfo[1])];
+                        int resp = s.Receive(zipRaw);
 
+                        File.WriteAllBytes(@"D:\" + fileInfo[0] + ".7z", zipRaw);
 
+                        ZipFile.ExtractToDirectory(@"D:\" + fileInfo[0] + ".7z", @"D:\" + fileInfo[0]);
+
+                        // Update the user
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            OutputDialog.Text += "File succesfully received and saved to the computer!\n" +
+                                             "---------------------------------------------------------------\n";
+                        }));
                     }
 
                     // Encoder to send response to client

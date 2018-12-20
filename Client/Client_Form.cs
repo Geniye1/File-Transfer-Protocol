@@ -204,6 +204,7 @@ namespace Client
                     // TODO: Ensure that there isn't already a file with the same name otherwise
                     // ZipFile will have a stroke
                     ZipFile.CreateFromDirectory(fileName, @"C:\TCP_Messages\result.7z");
+                    fileName = @"C:\TCP_Messages\result.7z";
                     byte[] zipRaw = File.ReadAllBytes(@"C:\TCP_Messages\result.7z");
 
                     len = zipRaw.Length;
@@ -231,8 +232,25 @@ namespace Client
                         response += Convert.ToChar(wait[i]);
                     }
 
+                    // Check if the server is ready
+                    if (response == "OK")
+                    {
+                        // Read the bytes of the file itself
+                        byte[] fileDataRaw = File.ReadAllBytes(fileName);
 
-                    
+                        // Update the user
+                        OutputDialog.Text += "Transmitting raw file data...\n" +
+                                             "---------------------------------------------------------------\n";
+
+                        // Write the extension to the stream
+                        stream.Write(fileDataRaw, 0, fileDataRaw.Length);
+                        stream.Flush();
+
+                        // Update the user
+                        OutputDialog.Text += "File successfully sent to the server!\n" +
+                                             "---------------------------------------------------------------\n";
+                    }
+
                 }
 
                 // Prepare and receive a response to the server
