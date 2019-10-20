@@ -31,7 +31,8 @@ namespace TCP_Messenger
 
         private bool hasBegun = false;
         private TcpListener listener;
-        //private Socket s;
+        private string fileName;
+        private string safePathName;
 
         public Server_Form()
         {
@@ -50,6 +51,14 @@ namespace TCP_Messenger
 
             // Begin the recursive server algorithm
             RunServer();   
+        }
+
+        private void pathbtn_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.ShowDialog();
+            fileName = folderBrowserDialog1.SelectedPath;
+            safePathName = Path.GetFileName(fileName);
+            pathText.Text = fileName;
         }
 
         /*
@@ -143,7 +152,7 @@ namespace TCP_Messenger
 
                         // Initialize the stream and File Stream to create the new file
                         var ns = new NetworkStream(s);
-                        var fileStream = new FileStream(@"D:\pleasework.jpg", FileMode.Create);
+                        var fileStream = new FileStream(fileName + @"\" + "pleasework.jpg", FileMode.Create);
 
                         // Asynchronously receive the image
                         await Task.Run(() =>
@@ -213,9 +222,9 @@ namespace TCP_Messenger
                         // Decode the received data 
                         ASCIIEncoding enc = new ASCIIEncoding();
                         string data = enc.GetString(test);
-
+                        
                         // Write the string to a file with the same name
-                        File.WriteAllText(@"D:\" + fileInfo[0], data);
+                        File.WriteAllText(fileName + @"\" + fileInfo[0], data);
 
                         // Update the user
                         this.Invoke(new MethodInvoker(delegate ()
@@ -264,9 +273,9 @@ namespace TCP_Messenger
                         byte[] zipRaw = new byte[Convert.ToInt32(fileInfo[1])];
                         int resp = s.Receive(zipRaw);
 
-                        File.WriteAllBytes(@"D:\" + fileInfo[0] + ".7z", zipRaw);
+                        File.WriteAllBytes(fileName + @"\" + fileInfo[0] + ".7z", zipRaw);
 
-                        ZipFile.ExtractToDirectory(@"D:\" + fileInfo[0] + ".7z", @"D:\" + fileInfo[0]);
+                        ZipFile.ExtractToDirectory(fileName + @"\" + fileInfo[0] + ".7z", @"D:\" + fileInfo[0]);
 
                         // Update the user
                         this.Invoke(new MethodInvoker(delegate ()

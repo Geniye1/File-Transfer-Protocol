@@ -201,10 +201,13 @@ namespace Client
                     stream.Write(flag, 0, flag.Length);
                     stream.Flush();
 
-                    // TODO: Ensure that there isn't already a file with the same name otherwise
-                    // ZipFile will have a stroke
-                    ZipFile.CreateFromDirectory(fileName, @"C:\TCP_Messages\result.7z");
-                    fileName = @"C:\TCP_Messages\result.7z";
+                    if (File.Exists(@"C:\TCP_Messages\" + fileName + ".7z"))
+                    {
+                        File.Delete(@"C:\TCP_Messages\" + fileName + ".7z");
+                    }
+
+                    ZipFile.CreateFromDirectory(fileName, @"C:\TCP_Messages\" + fileName + ".7z");
+                    fileName = @"C:\TCP_Messages\" + fileName + ".7z";
                     byte[] zipRaw = File.ReadAllBytes(@"C:\TCP_Messages\result.7z");
 
                     len = zipRaw.Length;
